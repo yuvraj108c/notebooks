@@ -2,6 +2,9 @@ import requests
 from colorama import Fore, Style
 import time
 import torch
+import os
+import subprocess
+import sys
 
 def log(msg, emoji="✔️", error=False):
     if error:
@@ -44,3 +47,20 @@ def get_public_ip(version='ipv4'):
         return public_ip
     except Exception as e:
         log(f"Error getting public {version} address:", error=True)
+        
+
+
+def install_custom_node_requirements(base_dir):
+    for item in os.listdir(base_dir):
+        dir_path = os.path.join(base_dir, item)
+        
+        if os.path.isdir(dir_path):
+            req_file = os.path.join(dir_path, 'requirements.txt')
+            if os.path.exists(req_file):
+                try:
+                    log(f"Installing requirements: {dir_path}")
+                    subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '-r', 'requirements.txt'], 
+                                check=True,
+                                cwd=dir_path)
+                except subprocess.CalledProcessError as e:
+                    log(f"Error installing requirements in {dir_path}: {e}", error=True)
